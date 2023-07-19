@@ -4,9 +4,11 @@ import {
   Column,
   CreateDateColumn,
   ManyToOne,
+  OneToOne,
 } from 'typeorm';
 import { Length, IsIn } from 'class-validator';
 import { Tribe } from './tribe.entity';
+import { Metrics } from './metrics.entity';
 
 export enum RepositoryState {
   Enable = 'E',
@@ -21,11 +23,11 @@ export enum RepositoryStatus {
 
 @Entity()
 export class Repository {
-  @PrimaryGeneratedColumn()
-  id_repository: number;
+  @PrimaryGeneratedColumn({ type: 'bigint' })
+  id_repository: string;
 
   @ManyToOne(() => Tribe)
-  id_tribe: number;
+  id_tribe: string;
 
   @ManyToOne(() => Tribe, { onDelete: 'CASCADE' }) // You can set the appropriate onDelete behavior.
   tribe: Tribe;
@@ -53,4 +55,7 @@ export class Repository {
     enum: Object.values(RepositoryStatus),
   })
   status: string;
+
+  @OneToOne(() => Metrics, (metrics) => metrics.repository)
+  metrics: Metrics;
 }

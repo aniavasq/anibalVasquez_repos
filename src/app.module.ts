@@ -8,7 +8,10 @@ import { RepositoryService } from './repository.service';
 import { Organization } from './organization.entity';
 import { OrganizationController } from './organization.controller';
 import { OrganizationService } from './organization.service';
+import { TribeService } from './tribe.service';
+import { TribeController } from './tribe.controller';
 import typeorm from './config/typeorm';
+import { Tribe } from './tribe.entity';
 
 @Module({
   imports: [
@@ -21,9 +24,14 @@ import typeorm from './config/typeorm';
       useFactory: async (configService: ConfigService) =>
         configService.get('typeorm'),
     }),
-    TypeOrmModule.forFeature([Organization]),
+    TypeOrmModule.forFeature([Organization, Tribe]),
   ],
-  controllers: [AppController, RepositoryController, OrganizationController],
-  providers: [AppService, RepositoryService, OrganizationService],
+  controllers: [
+    AppController,
+    RepositoryController,
+    OrganizationController,
+    TribeController,
+  ],
+  providers: [AppService, RepositoryService, OrganizationService, TribeService],
 })
 export class AppModule {}

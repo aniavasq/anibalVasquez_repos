@@ -1,4 +1,4 @@
 export interface RepositorVerification {
-  id: number;
+  id: string;
   state: number;
 }

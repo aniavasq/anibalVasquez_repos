@@ -1,6 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 import { IsIn } from 'class-validator';
 import { IntStatus, Organization } from './organization.entity';
+import { Repository } from './repository.entity';
 
 @Entity()
 export class Tribe {
@@ -23,4 +30,9 @@ export class Tribe {
     enum: Object.values(IntStatus),
   })
   status: number;
+
+  @OneToMany(() => Repository, (repository) => repository.tribe)
+  repositories: Repository[];
 }
+
+export { IntStatus };

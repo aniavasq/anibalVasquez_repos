@@ -6,6 +6,7 @@ import {
   Delete,
   Param,
   Body,
+  BadRequestException,
 } from '@nestjs/common';
 import { OrganizationService } from './organization.service';
 import { Organization } from './organization.entity';
@@ -30,8 +31,15 @@ export class OrganizationController {
     return this.organizationService.getAllOrganizations();
   }
 
+  checkIdParam(id: string): void {
+    if (isNaN(Number(id.toString()))) {
+      throw new BadRequestException('Invalid Organization ID');
+    }
+  }
+
   @Get(':id')
   getOrganizationById(@Param('id') id: string): Promise<Organization> {
+    this.checkIdParam(id);
     return this.organizationService.getOneOrganization(id);
   }
 
@@ -40,6 +48,7 @@ export class OrganizationController {
     @Param('id') id: string,
     @Body() updateOrganizationDto: UpdateOrganizationDto,
   ): Promise<Organization> {
+    this.checkIdParam(id);
     return this.organizationService.updateOrganization(
       id,
       updateOrganizationDto,
@@ -48,6 +57,7 @@ export class OrganizationController {
 
   @Delete(':id')
   deleteOrganization(@Param('id') id: string): Promise<Organization> {
+    this.checkIdParam(id);
     return this.organizationService.deleteOrganization(id);
   }
 }
