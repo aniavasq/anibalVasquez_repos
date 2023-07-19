@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Put,
+  Delete,
   Param,
   Body,
 } from '@nestjs/common';
@@ -43,5 +44,10 @@ export class OrganizationController {
       id,
       updateOrganizationDto,
     );
+  }
+
+  @Delete(':id')
+  deleteOrganization(@Param('id') id: string): Promise<Organization> {
+    return this.organizationService.deleteOrganization(id);
   }
 }

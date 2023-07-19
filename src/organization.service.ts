@@ -55,4 +55,13 @@ export class OrganizationService {
       ...updateOrganizationDto,
     });
   }
+
+  async deleteOrganization(id: string): Promise<Organization> {
+    const organization = await this.getOneOrganization(id);
+
+    return this.organizationRepository.save({
+      ...organization,
+      status: IntStatus.Inactive,
+    });
+  }
 }
