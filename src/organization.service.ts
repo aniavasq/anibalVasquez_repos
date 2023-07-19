@@ -23,6 +23,12 @@ export class OrganizationService {
     return this.organizationRepository.save(organization);
   }
 
+  async getAllOrganizations(): Promise<Organization[]> {
+    return this.organizationRepository.find({
+      where: { status: IntStatus.Active },
+    });
+  }
+
   async getOrganizationById(id: string): Promise<Organization> {
     return this.organizationRepository.findOneBy({
       id_organization: id,

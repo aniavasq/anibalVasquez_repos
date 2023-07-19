@@ -1,4 +1,11 @@
-import { Controller, Post, Put, Param, Body } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Param,
+  Body,
+} from '@nestjs/common';
 import { OrganizationService } from './organization.service';
 import { Organization } from './organization.entity';
 import {
@@ -15,6 +22,16 @@ export class OrganizationController {
     @Body() createOrganizationDto: CreateOrganizationDto,
   ): Promise<Organization> {
     return this.organizationService.createOrganization(createOrganizationDto);
+  }
+
+  @Get()
+  getAllOrganizations(): Promise<Organization[]> {
+    return this.organizationService.getAllOrganizations();
+  }
+
+  @Get(':id')
+  getOrganizationById(@Param('id') id: string): Promise<Organization> {
+    return this.organizationService.getOneOrganization(id);
   }
 
   @Put(':id')
