@@ -16,6 +16,8 @@ const config = {
   autoLoadEntities: true,
   synchronize: false,
   ssl: true,
+  logging: true,
+  bigNumberStrings: true,
 };
 
 export default registerAs('typeorm', () => config);

@@ -4,11 +4,11 @@ import { IntStatus, Organization } from './organization.entity';
 
 @Entity()
 export class Tribe {
-  @PrimaryGeneratedColumn()
-  id_tribe: number;
+  @PrimaryGeneratedColumn({ type: 'bigint' })
+  id_tribe: string;
 
   @ManyToOne(() => Organization)
-  id_organization: number;
+  id_organization: string;
 
   @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
   organization: Organization;

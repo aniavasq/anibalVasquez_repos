@@ -5,6 +5,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { RepositoryController } from './repository.controller';
 import { RepositoryService } from './repository.service';
+import { Organization } from './organization.entity';
+import { OrganizationController } from './organization.controller';
+import { OrganizationService } from './organization.service';
 import typeorm from './config/typeorm';
 
 @Module({
@@ -18,8 +21,9 @@ import typeorm from './config/typeorm';
       useFactory: async (configService: ConfigService) =>
         configService.get('typeorm'),
     }),
+    TypeOrmModule.forFeature([Organization]),
   ],
-  controllers: [AppController, RepositoryController],
-  providers: [AppService, RepositoryService],
+  controllers: [AppController, RepositoryController, OrganizationController],
+  providers: [AppService, RepositoryService, OrganizationService],
 })
 export class AppModule {}

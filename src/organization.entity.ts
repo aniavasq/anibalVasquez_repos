@@ -1,3 +1,4 @@
+import { Length } from 'class-validator';
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 export enum IntStatus {
@@ -7,10 +8,11 @@ export enum IntStatus {
 
 @Entity()
 export class Organization {
-  @PrimaryGeneratedColumn()
-  id_organization: number;
+  @PrimaryGeneratedColumn({ type: 'bigint' })
+  id_organization: string;
 
-  @Column({ type: 'char', length: 50 })
+  @Length(1, 50)
+  @Column({ length: 50 })
   name: string;
 
   @Column({

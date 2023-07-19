@@ -30,7 +30,7 @@ export class Repository {
   @ManyToOne(() => Tribe, { onDelete: 'CASCADE' }) // You can set the appropriate onDelete behavior.
   tribe: Tribe;
 
-  @Column()
+  @Column({ length: 50 })
   name: string;
 
   @Length(1, 1)
