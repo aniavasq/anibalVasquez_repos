@@ -2,7 +2,7 @@ import axios from 'axios';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Tribe, IntStatus } from './tribe.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, SelectQueryBuilder } from 'typeorm';
 import { RepositoryState } from './repository.entity';
 import { RepositorVerification } from './repository.interface';
 import { VerificationState } from './repository.service';
@@ -64,14 +64,16 @@ export class TribeService {
     return '';
   }
 
-  async getTribeRepositories(id: string): Promise<any> {
+  async getTribeRepositoriesQuery(
+    id: string,
+  ): Promise<SelectQueryBuilder<Tribe>> {
     const tribe = await this.tribeRepository.findOneBy({ id_tribe: id });
 
     if (!tribe) {
       throw new NotFoundException('La Tribu no se encuentra registrada');
     }
 
-    const repositories = await this.tribeRepository
+    return this.tribeRepository
       .createQueryBuilder('tribe')
       .leftJoin('tribe.repositories', 'repository')
       .leftJoin('repository.metrics', 'metrics')
@@ -98,8 +100,13 @@ export class TribeService {
         'metrics.vulnerabilities AS vulnerabilities',
         'metrics.hotspot AS hotspots',
         'repository.state AS state',
-      ])
-      .execute();
+      ]);
+  }
+
+  async getTribeRepositories(id: string): Promise<any> {
+    const repositories = await (
+      await this.getTribeRepositoriesQuery(id)
+    ).execute();
 
     if (!repositories.length) {
       throw new NotFoundException(
@@ -119,5 +126,44 @@ export class TribeService {
     }
 
     return { repositories };
+  }
+
+  async generateTribeRepositoriesCsv(id: string): Promise<string> {
+    const repositories = await this.getTribeRepositories(id);
+
+    const csvData: string[] = [];
+    const headers = [
+      'Repository ID',
+      'Repository Name',
+      'Tribe Name',
+      'Organization Name',
+      'Coverage',
+      'Code Smells',
+      'Bugs',
+      'Vulnerabilities',
+      'Hotspots',
+      'Repository State',
+      'Verification State',
+    ];
+    csvData.push(headers.join(','));
+
+    for (const repo of repositories.repositories) {
+      csvData.push(
+        [
+          repo.id,
+          repo.name,
+          repo.tribe,
+          repo.organization,
+          repo.coverage,
+          repo.codesmells,
+          repo.bugs,
+          repo.vulnerabilities,
+          repo.hotspots,
+          repo.state,
+          repo.verificationState,
+        ].join(','),
+      );
+    }
+    return csvData.join('\n');
   }
 }

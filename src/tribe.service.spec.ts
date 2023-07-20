@@ -7,6 +7,21 @@ import { RepositoryState } from './repository.entity';
 import { VerificationState } from './repository.service';
 import { NotFoundException } from '@nestjs/common';
 
+const mockTribe = { id_tribe: '1', name: 'Test Tribe' } as Tribe;
+const mockRepositories = [
+  {
+    id: '1',
+    name: 'Repo 1',
+    tribe: mockTribe.name,
+    organization: 'Some Organization',
+    coverage: '85%',
+    codeSmells: 0,
+    bugs: 0,
+    vulnerabilities: 0,
+    hotspots: 0,
+    state: RepositoryState.Enable,
+  },
+];
 const mockCreateQueryBuilder = (mockRepositories: any[]) => {
   return {
     leftJoin: jest.fn().mockReturnThis(),
@@ -16,6 +31,11 @@ const mockCreateQueryBuilder = (mockRepositories: any[]) => {
     execute: jest.fn().mockResolvedValue(mockRepositories),
   } as any;
 };
+const mockFetchRepositoriesVerificationData = jest.fn().mockResolvedValue([
+  { id: '1', state: VerificationState.Approved },
+  { id: '2', state: VerificationState.Waiting },
+  { id: '3', state: VerificationState.Verified },
+]);
 
 describe('TribeService', () => {
   let service: TribeService;
@@ -41,22 +61,6 @@ describe('TribeService', () => {
   });
 
   it('should return repositories for a valid tribe (ejercicio 3 - escenario 1)', async () => {
-    const mockTribe = { id_tribe: '1', name: 'Test Tribe' } as Tribe;
-    const mockRepositories = [
-      {
-        id: '1',
-        name: 'Repo 1',
-        tribe: mockTribe.name,
-        organization: 'Some Organization',
-        coverage: '85%',
-        codeSmells: 0,
-        bugs: 0,
-        vulnerabilities: 0,
-        hotspots: 0,
-        state: RepositoryState.Enable,
-      },
-    ];
-
     jest.spyOn(tribeRepository, 'findOneBy').mockResolvedValue(mockTribe);
     jest
       .spyOn(tribeRepository, 'createQueryBuilder')
@@ -83,21 +87,6 @@ describe('TribeService', () => {
   });
 
   it('should throw not found tribe error (ejercicio 3 - escenario 2)', async () => {
-    const mockRepositories = [
-      {
-        id: '1',
-        name: 'Repo 1',
-        tribe: 'Tribe 1',
-        organization: 'Some Organization',
-        coverage: '85%',
-        codeSmells: 0,
-        bugs: 0,
-        vulnerabilities: 0,
-        hotspots: 0,
-        state: RepositoryState.Enable,
-      },
-    ];
-
     jest.spyOn(tribeRepository, 'findOneBy').mockResolvedValue(null);
     jest
       .spyOn(tribeRepository, 'createQueryBuilder')
@@ -131,7 +120,6 @@ describe('TribeService', () => {
   });
 
   it('should show verification state (ejercicio 3 - escenario 4)', async () => {
-    const mockTribe = { id_tribe: '1', name: 'Test Tribe' } as Tribe;
     const mockRepositories = [
       {
         id: '1',
@@ -146,9 +134,6 @@ describe('TribeService', () => {
         state: RepositoryState.Enable,
       },
     ];
-    const mockFetchRepositoriesVerificationData = jest
-      .fn()
-      .mockResolvedValue([{ id: '1', state: VerificationState.Approved }]);
 
     jest.spyOn(tribeRepository, 'findOneBy').mockResolvedValue(mockTribe);
     jest
@@ -177,5 +162,62 @@ describe('TribeService', () => {
         },
       ],
     });
+  });
+
+  it('should get CSV data (ejercicio 4)', async () => {
+    const mockRepositories = [
+      {
+        id: '1',
+        name: 'Repo 1',
+        tribe: mockTribe.name,
+        organization: 'Some Organization',
+        coverage: '85%',
+        codeSmells: 0,
+        bugs: 0,
+        vulnerabilities: 0,
+        hotspots: 0,
+        state: RepositoryState.Enable,
+      },
+      {
+        id: '2',
+        name: 'Repo 2',
+        tribe: mockTribe.name,
+        organization: 'Some Organization',
+        coverage: '80%',
+        codeSmells: 0,
+        bugs: 0,
+        vulnerabilities: 0,
+        hotspots: 0,
+        state: RepositoryState.Enable,
+      },
+      {
+        id: '3',
+        name: 'Repo 3',
+        tribe: mockTribe.name,
+        organization: 'Some Organization',
+        coverage: '76%',
+        codeSmells: 0,
+        bugs: 0,
+        vulnerabilities: 0,
+        hotspots: 0,
+        state: RepositoryState.Enable,
+      },
+    ];
+
+    jest.spyOn(tribeRepository, 'findOneBy').mockResolvedValue(mockTribe);
+    jest
+      .spyOn(tribeRepository, 'createQueryBuilder')
+      .mockReturnValue(mockCreateQueryBuilder(mockRepositories));
+
+    jest
+      .spyOn(service, 'fetchRepositoriesVerificationData')
+      .mockImplementation(mockFetchRepositoriesVerificationData);
+
+    const result = await service.generateTribeRepositoriesCsv('1');
+    expect(result)
+      .toEqual(`Repository ID,Repository Name,Tribe Name,Organization Name,Coverage,Code Smells,Bugs,Vulnerabilities,Hotspots,Repository State,Verification State
+1,Repo 1,Test Tribe,Some Organization,85%,,0,0,0,Habilitado,Aprobado
+2,Repo 2,Test Tribe,Some Organization,80%,,0,0,0,Habilitado,En espera
+3,Repo 3,Test Tribe,Some Organization,76%,,0,0,0,Habilitado,Verificado`);
   });
 });
